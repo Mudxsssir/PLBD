@@ -116,11 +116,11 @@ export default function WorkspaceExplorer({
     };
   }, [onOpenFile]);
 
-  const openFile = async (node: WorkspaceNode) => {
+  const openFile = async (node: WorkspaceNode, skipSave = false) => {
     if (node.type !== "file") return;
     try {
       setError("");
-      await onBeforeOpen();
+      if (!skipSave) await onBeforeOpen();
       const file = await apiRequest(`/workspace/file?path=${encodeURIComponent(node.path)}`);
       onOpenFile(node.path, file.content);
     } catch (reason) {
@@ -194,7 +194,7 @@ export default function WorkspaceExplorer({
       const nextTree = await refreshTree();
       if (activeFile === node.path || activeFile.startsWith(`${node.path}/`)) {
         const nextFile = flattenFiles(nextTree)[0];
-        if (nextFile) await openFile(nextFile);
+        if (nextFile) await openFile(nextFile, true);
         else onFileDeleted();
       }
       if (selectedFolder === node.path || selectedFolder.startsWith(`${node.path}/`)) {
