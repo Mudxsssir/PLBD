@@ -163,25 +163,28 @@ function App() {
     setAnalysisError("");
   }, []);
 
+  const saveCurrentFile = useCallback(async () => {
+    if (!fileReady || !activeFile) return;
+    const response = await fetch(API_URL + "/workspace/file", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ path: activeFile, content: code }),
+    });
+    if (!response.ok) {
+      const body = await response.json().catch(() => null);
+      throw new Error(body?.detail || "Unable to save file.");
+    }
+  }, [activeFile, code, fileReady]);
+
   useEffect(() => {
     if (!fileReady || !activeFile) return;
-    const timer = window.setTimeout(async () => {
-      try {
-        const response = await fetch(API_URL + "/workspace/file", {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ path: activeFile, content: code }),
-        });
-        if (!response.ok) {
-          const body = await response.json().catch(() => null);
-          throw new Error(body?.detail || "Unable to save file.");
-        }
-      } catch (error) {
+    const timer = window.setTimeout(() => {
+      void saveCurrentFile().catch((error: unknown) => {
         setOutput(error instanceof Error ? error.message : "Unable to save file.");
-      }
+      });
     }, 450);
     return () => window.clearTimeout(timer);
-  }, [code, activeFile, fileReady]);
+  }, [saveCurrentFile, activeFile, fileReady]);
 
   const outlineItems = useMemo(() => {
     return code.split("\n").flatMap((line, index) => {
@@ -763,6 +766,7 @@ Logic findings: ${entry.findings}`
                 <WorkspaceExplorer
                   activeFile={activeFile}
                   onOpenFile={openWorkspaceFile}
+                  onBeforeOpen={saveCurrentFile}
                   onPathRenamed={(oldPath, newPath) => {
                     setActiveFile((current) =>
                       current === oldPath || current.startsWith(oldPath + "/")
