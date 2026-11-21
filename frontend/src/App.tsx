@@ -154,38 +154,6 @@ function App() {
   const [fileReady, setFileReady] = useState(false);
   const [outlineExpanded, setOutlineExpanded] = useState(true);
 
-  const openWorkspaceFile = useCallback((path: string, content: string) => {
-    setActiveFile(path);
-    setCode(content);
-    setFileReady(true);
-    setResult(emptyResult);
-    setSelectedFinding(null);
-    setAnalysisError("");
-  }, []);
-
-  const saveCurrentFile = useCallback(async () => {
-    if (!fileReady || !activeFile) return;
-    const response = await fetch(API_URL + "/workspace/file", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ path: activeFile, content: code }),
-    });
-    if (!response.ok) {
-      const body = await response.json().catch(() => null);
-      throw new Error(body?.detail || "Unable to save file.");
-    }
-  }, [activeFile, code, fileReady]);
-
-  useEffect(() => {
-    if (!fileReady || !activeFile) return;
-    const timer = window.setTimeout(() => {
-      void saveCurrentFile().catch((error: unknown) => {
-        setOutput(error instanceof Error ? error.message : "Unable to save file.");
-      });
-    }, 450);
-    return () => window.clearTimeout(timer);
-  }, [saveCurrentFile, activeFile, fileReady]);
-
   const outlineItems = useMemo(() => {
     return code.split("\n").flatMap((line, index) => {
       const trimmed = line.trim();
@@ -261,6 +229,38 @@ function App() {
   const [cursorLine, setCursorLine] = useState(1);
   const [cursorColumn, setCursorColumn] = useState(1);
   const [showSettings, setShowSettings] = useState(false);
+
+  const openWorkspaceFile = useCallback((path: string, content: string) => {
+    setActiveFile(path);
+    setCode(content);
+    setFileReady(true);
+    setResult(emptyResult);
+    setSelectedFinding(null);
+    setAnalysisError("");
+  }, []);
+
+  const saveCurrentFile = useCallback(async () => {
+    if (!fileReady || !activeFile) return;
+    const response = await fetch(API_URL + "/workspace/file", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ path: activeFile, content: code }),
+    });
+    if (!response.ok) {
+      const body = await response.json().catch(() => null);
+      throw new Error(body?.detail || "Unable to save file.");
+    }
+  }, [activeFile, code, fileReady]);
+
+  useEffect(() => {
+    if (!fileReady || !activeFile) return;
+    const timer = window.setTimeout(() => {
+      void saveCurrentFile().catch((error: unknown) => {
+        setOutput(error instanceof Error ? error.message : "Unable to save file.");
+      });
+    }, 450);
+    return () => window.clearTimeout(timer);
+  }, [saveCurrentFile, activeFile, fileReady]);
 
   const diagnostics = result.diagnostics;
   const findings = result.logic_findings;
