@@ -1,5 +1,5 @@
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Editor, { type OnMount } from "@monaco-editor/react";
 import * as monaco from "monaco-editor";
 import type { editor } from "monaco-editor";
@@ -24,34 +24,11 @@ import {
 } from "lucide-react";
 import "./App.css";
 import TerminalPanel from "./TerminalPanel";
+import WorkspaceExplorer from "./WorkspaceExplorer";
 
 const API_URL = "http://127.0.0.1:8000";
 const ANALYZE_URL = `${API_URL}/analyze`;
 const HEALTH_URL = `${API_URL}/health`;
-
-const README_CONTENT = `# PLBD - Programming Logic Blind Spot Detector
-
-## About
-PLBD is an interactive C programming environment designed to detect programming errors, identify logic misconceptions, and recommend learning exercises.
-
-## Features
-- Live C code analysis
-- Compiler diagnostics and line highlighting
-- Logic error detection
-- Learning assistant and recommendations
-- Interactive C execution terminal
-- Analysis history and code search
-
-## Technology Stack
-- React + TypeScript + Vite
-- Monaco Editor
-- Python + FastAPI
-- Clang and GCC
-- Docker
-
-## Main Source
-The C source file is located in the src folder as main.c.
-`;
 
 const STARTER_CODE = `#include <stdio.h>
 
@@ -173,10 +150,38 @@ function loadArrayFromStorage<T>(key: string): T[] {
 
 function App() {
   const [code, setCode] = useState(STARTER_CODE);
-  const [activeFile, setActiveFile] = useState<"main.c" | "README.md">("main.c");
-  const [projectExpanded, setProjectExpanded] = useState(true);
-  const [srcExpanded, setSrcExpanded] = useState(true);
+  const [activeFile, setActiveFile] = useState("");
+  const [fileReady, setFileReady] = useState(false);
   const [outlineExpanded, setOutlineExpanded] = useState(true);
+
+  const openWorkspaceFile = useCallback((path: string, content: string) => {
+    setActiveFile(path);
+    setCode(content);
+    setFileReady(true);
+    setResult(emptyResult);
+    setSelectedFinding(null);
+    setAnalysisError("");
+  }, []);
+
+  useEffect(() => {
+    if (!fileReady || !activeFile) return;
+    const timer = window.setTimeout(async () => {
+      try {
+        const response = await fetch(API_URL + "/workspace/file", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ path: activeFile, content: code }),
+        });
+        if (!response.ok) {
+          const body = await response.json().catch(() => null);
+          throw new Error(body?.detail || "Unable to save file.");
+        }
+      } catch (error) {
+        setOutput(error instanceof Error ? error.message : "Unable to save file.");
+      }
+    }, 450);
+    return () => window.clearTimeout(timer);
+  }, [code, activeFile, fileReady]);
 
   const outlineItems = useMemo(() => {
     return code.split("\n").flatMap((line, index) => {
@@ -370,6 +375,14 @@ function App() {
     const controller = new AbortController();
 
     const timer = window.setTimeout(async () => {
+      if (!activeFile.toLowerCase().endsWith(".c")) {
+        setResult(emptyResult);
+        setAnalysisError("");
+        setIsAnalyzing(false);
+        setSelectedFinding(null);
+        return;
+      }
+
       if (!code.trim()) {
         setResult(emptyResult);
         setAnalysisError("");
@@ -484,7 +497,7 @@ Recommended exercises: ${normalized.recommendations.reduce(
       window.clearTimeout(timer);
       controller.abort();
     };
-  }, [code, analysisVersion]);
+  }, [code, analysisVersion, activeFile]);
 
   // Display compiler diagnostics and highlight affected source lines.
   useEffect(() => {
@@ -587,7 +600,7 @@ Recommended exercises: ${normalized.recommendations.reduce(
 
   // Start an interactive C execution session in the terminal.
   const runCode = () => {
-    if (!code.trim() || isRunning) return;
+    if (!activeFile.toLowerCase().endsWith(".c") || !code.trim() || isRunning) return;
 
     setBottomTab("Output");
     setPanelOpen(true);
@@ -596,6 +609,7 @@ Recommended exercises: ${normalized.recommendations.reduce(
 
   const loadHistory = (entry: HistoryEntry) => {
     setCode(entry.code);
+    setFileReady(false);
     setActiveActivity("explorer");
     setSidebarOpen(true);
 
@@ -746,52 +760,23 @@ Logic findings: ${entry.findings}`
 
             {activeActivity === "explorer" && (
               <div className="explorer-content">
-                <div className="explorer-section">
-                  <button
-                    type="button"
-                    className="section-label explorer-toggle"
-                    onClick={() => setProjectExpanded(!projectExpanded)}
-                  >
-                    {projectExpanded ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
-                    <span>PLBD PROJECT</span>
-                  </button>
-
-                  {projectExpanded && (
-                    <>
-                      <button
-                        type="button"
-                        className="file-item folder-item"
-                        onClick={() => setSrcExpanded(!srcExpanded)}
-                      >
-                        {srcExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-                        <span className="folder-symbol">📁</span>
-                        <span>src</span>
-                      </button>
-
-                      {srcExpanded && (
-                        <button
-                          type="button"
-                          className={`file-item ${activeFile === "main.c" ? "selected" : ""}`}
-                          onClick={() => setActiveFile("main.c")}
-                        >
-                          <FileCode2 size={15} />
-                          <span>main.c</span>
-                        </button>
-                      )}
-
-                      <button
-                        type="button"
-                        className={`file-item ${activeFile === "README.md" ? "selected" : ""}`}
-                        onClick={() => setActiveFile("README.md")}
-                      >
-                        <FileCode2 size={15} />
-                        <span>README.md</span>
-                      </button>
-                    </>
-                  )}
-                </div>
-
-                {activeFile === "main.c" && (
+                <WorkspaceExplorer
+                  activeFile={activeFile}
+                  onOpenFile={openWorkspaceFile}
+                  onPathRenamed={(oldPath, newPath) => {
+                    setActiveFile((current) =>
+                      current === oldPath || current.startsWith(oldPath + "/")
+                        ? current.replace(oldPath, newPath)
+                        : current
+                    );
+                  }}
+                  onFileDeleted={() => {
+                    setActiveFile("");
+                    setCode("");
+                    setFileReady(false);
+                  }}
+                />
+                {activeFile.toLowerCase().endsWith(".c") && (
                   <div className="explorer-section">
                     <button
                       type="button"
@@ -801,7 +786,6 @@ Logic findings: ${entry.findings}`
                       {outlineExpanded ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
                       <span>OUTLINE</span>
                     </button>
-
                     {outlineExpanded && (
                       <div className="outline-list">
                         {outlineItems.length === 0 ? (
@@ -813,9 +797,9 @@ Logic findings: ${entry.findings}`
                             <button
                               type="button"
                               className="outline-item"
-                              key={`${item.kind}-${item.line}-${index}`}
+                              key={item.kind + "-" + item.line + "-" + index}
                               onClick={() => goToLine(item.line)}
-                              title={`Go to line ${item.line}`}
+                              title={"Go to line " + item.line}
                             >
                               <Code2 size={13} />
                               <span>{item.label}</span>
@@ -974,10 +958,10 @@ Logic findings: ${entry.findings}`
           <div className="editor-tabs">
             <div className="editor-tab active">
               <FileCode2 size={15} />
-              <span>{activeFile}</span>
-              {activeFile === "main.c" && <span className="tab-unsaved" />}
+              <span>{activeFile.split("/").pop() || "No file open"}</span>
+              {activeFile && <span className="tab-unsaved" />}
 
-              {activeFile === "main.c" && (
+              {activeFile && (
                 <button
                   className="tab-close"
                   title="Clear editor"
@@ -992,7 +976,7 @@ Logic findings: ${entry.findings}`
               <button
                 className="run-button"
                 onClick={runCode}
-                disabled={activeFile !== "main.c" || isRunning || !code.trim()}
+                disabled={!activeFile.toLowerCase().endsWith(".c") || isRunning || !code.trim()}
                 title="Compile and run C program"
               >
                 <Play size={13} />
@@ -1024,28 +1008,22 @@ Logic findings: ${entry.findings}`
           <div className="breadcrumb">
             <span>PLBD</span>
             <ChevronRight size={13} />
-            {activeFile === "main.c" ? (
-              <>
-                <span>src</span>
-                <ChevronRight size={13} />
-              </>
-            ) : null}
+            {activeFile.split("/").slice(0, -1).map((part) => (
+              <span key={part}>{part} / </span>
+            ))}
             <FileCode2 size={13} />
-            <span>{activeFile}</span>
+            <span>{activeFile.split("/").pop() || "No file open"}</span>
           </div>
 
           <div className="editor-container">
             <Editor
               height="100%"
-              language={activeFile === "main.c" ? "c" : "markdown"}
+              language={activeFile.toLowerCase().endsWith(".c") || activeFile.toLowerCase().endsWith(".h") ? "c" : activeFile.toLowerCase().endsWith(".md") ? "markdown" : activeFile.toLowerCase().endsWith(".json") ? "json" : "plaintext"}
               theme="vs-dark"
-              value={activeFile === "main.c" ? code : README_CONTENT}
-              onChange={(value) => {
-                if (activeFile === "main.c") setCode(value || "");
-              }}
+              value={code}
+              onChange={(value) => setCode(value || "")}
               onMount={handleEditorMount}
               options={{
-                readOnly: activeFile === "README.md",
                 fontSize: 14,
                 fontFamily:
                   "'JetBrains Mono', 'SFMono-Regular', Consolas, monospace",
