@@ -27,6 +27,7 @@ type WorkspaceNode = {
 type Props = {
   activeFile: string;
   onOpenFile: (path: string, content: string) => void;
+  onBeforeOpen: () => Promise<void>;
   onPathRenamed: (oldPath: string, newPath: string) => void;
   onFileDeleted: () => void;
 };
@@ -71,6 +72,7 @@ function iconForFile(name: string) {
 export default function WorkspaceExplorer({
   activeFile,
   onOpenFile,
+  onBeforeOpen,
   onPathRenamed,
   onFileDeleted,
 }: Props) {
@@ -118,6 +120,7 @@ export default function WorkspaceExplorer({
     if (node.type !== "file") return;
     try {
       setError("");
+      await onBeforeOpen();
       const file = await apiRequest(`/workspace/file?path=${encodeURIComponent(node.path)}`);
       onOpenFile(node.path, file.content);
     } catch (reason) {
@@ -168,15 +171,13 @@ export default function WorkspaceExplorer({
     try {
       setBusy(true);
       setError("");
+      await onBeforeOpen();
       await apiRequest("/workspace/rename", {
         method: "POST",
         body: JSON.stringify({ old_path: node.path, new_path: nextPath }),
       });
       await refreshTree();
       onPathRenamed(node.path, nextPath);
-      if (node.type === "file" && activeFile === node.path) {
-        await openFile({ ...node, name: cleanName, path: nextPath });
-      }
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Unable to rename item.");
     } finally {
