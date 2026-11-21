@@ -163,6 +163,14 @@ function safeParseArray<T>(value: string | null): T[] {
   }
 }
 
+function loadArrayFromStorage<T>(key: string): T[] {
+  try {
+    return safeParseArray<T>(localStorage.getItem(key));
+  } catch {
+    return [];
+  }
+}
+
 function App() {
   const [code, setCode] = useState(STARTER_CODE);
   const [activeFile, setActiveFile] = useState<"main.c" | "README.md">("main.c");
