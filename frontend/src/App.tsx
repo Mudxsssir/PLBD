@@ -171,29 +171,29 @@ function App() {
   const [outlineExpanded, setOutlineExpanded] = useState(true);
 
   const outlineItems = useMemo(() => {
-    return code.split("\\n").flatMap((line, index) => {
+    return code.split("\n").flatMap((line, index) => {
       const trimmed = line.trim();
       const lineNumber = index + 1;
 
       if (!trimmed || trimmed.startsWith("//")) return [];
 
-      const include = trimmed.match(/^#include\\s+[<"]([^>"]+)[>"]/);
+      const include = trimmed.match(/^#include\s+[<"]([^>"]+)[>"]/);
       if (include) {
         return [{ label: include[1], kind: "Include", line: lineNumber }];
       }
 
-      const struct = trimmed.match(/^\\s*(?:typedef\\s+)?struct\\s+([A-Za-z_]\\w*)?/);
+      const struct = trimmed.match(/^\s*(?:typedef\s+)?struct\s+([A-Za-z_]\w*)?/);
       if (struct) {
         return [{ label: struct[1] || "struct", kind: "Structure", line: lineNumber }];
       }
 
-      const enumMatch = trimmed.match(/^\\s*(?:typedef\\s+)?enum\\s+([A-Za-z_]\\w*)?/);
+      const enumMatch = trimmed.match(/^\s*(?:typedef\s+)?enum\s+([A-Za-z_]\w*)?/);
       if (enumMatch) {
         return [{ label: enumMatch[1] || "enum", kind: "Enumeration", line: lineNumber }];
       }
 
       const functionMatch = trimmed.match(
-        /^\\s*(?:static\\s+)?(?:inline\\s+)?(?:const\\s+)?[A-Za-z_]\\w*(?:\\s*\\*)?\\s+([A-Za-z_]\\w*)\\s*\\([^;]*\\)\\s*\\{/
+        /^\s*(?:static\s+)?(?:inline\s+)?(?:const\s+)?[A-Za-z_]\w*(?:\s*\*)?\s+([A-Za-z_]\w*)\s*\([^;]*\)\s*\{/
       );
       if (functionMatch) {
         return [{ label: functionMatch[1], kind: "Function", line: lineNumber }];
