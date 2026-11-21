@@ -6,6 +6,7 @@ import shutil
 import subprocess
 import tempfile
 import time
+from pathlib import Path, PurePosixPath
 
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
@@ -40,6 +41,204 @@ class CodeRequest(BaseModel):
 class CodeExecutionRequest(BaseModel):
     code: str = Field(min_length=1, max_length=50000)
     input: str = Field(default="", max_length=10000)
+
+
+class WorkspaceFileRequest(BaseModel):
+    path: str = Field(min_length=1, max_length=500)
+    content: str = Field(default="", max_length=1000000)
+
+
+class WorkspacePathRequest(BaseModel):
+    path: str = Field(min_length=1, max_length=500)
+
+
+class WorkspaceRenameRequest(BaseModel):
+    old_path: str = Field(min_length=1, max_length=500)
+    new_path: str = Field(min_length=1, max_length=500)
+
+
+WORKSPACE_ROOT = Path(
+    os.environ.get("PLBD_WORKSPACE_DIR", str(Path.home() / "PLBD-Workspace"))
+).expanduser().resolve()
+WORKSPACE_MARKER = ".plbd-initialized"
+
+
+def initialize_workspace():
+    WORKSPACE_ROOT.mkdir(parents=True, exist_ok=True)
+    marker = WORKSPACE_ROOT / WORKSPACE_MARKER
+    if marker.exists():
+        return
+
+    source_dir = WORKSPACE_ROOT / "src"
+    source_dir.mkdir(exist_ok=True)
+    (source_dir / "main.c").write_text(
+        '#include <stdio.h>\\n\\n'
+        'int main(void) {\\n'
+        '    printf("Hello, PLBD!\\\\n");\\n'
+        '    return 0;\\n'
+        '}\\n',
+        encoding="utf-8",
+    )
+    (WORKSPACE_ROOT / "README.md").write_text(
+        "# PLBD Workspace\\n\\nCreate and manage your C source files here.\\n",
+        encoding="utf-8",
+    )
+    marker.write_text("initialized", encoding="utf-8")
+
+
+def workspace_path(relative_path: str, allow_root: bool = False) -> Path:
+    if not isinstance(relative_path, str):
+        raise HTTPException(400, "A valid workspace path is required.")
+
+    normalized = relative_path.replace("\\\\", "/")
+    if allow_root and normalized in ("", "."):
+        return WORKSPACE_ROOT
+
+    candidate = PurePosixPath(normalized)
+    if (
+        candidate.is_absolute()
+        or not candidate.parts
+        or any(part in ("", ".", "..") for part in candidate.parts)
+        or "\\x00" in normalized
+    ):
+        raise HTTPException(400, "Invalid workspace path.")
+
+    resolved = (WORKSPACE_ROOT / Path(*candidate.parts)).resolve()
+    try:
+        resolved.relative_to(WORKSPACE_ROOT)
+    except ValueError:
+        raise HTTPException(400, "Workspace paths must stay inside the workspace.")
+
+    return resolved
+
+
+def workspace_tree(directory: Path):
+    entries = []
+    try:
+        children = sorted(directory.iterdir(), key=lambda item: (not item.is_dir(), item.name.lower()))
+    except OSError:
+        return entries
+
+    for child in children:
+        if child.name == WORKSPACE_MARKER or child.is_symlink():
+            continue
+        relative = child.relative_to(WORKSPACE_ROOT).as_posix()
+        if child.is_dir():
+            entries.append({
+                "name": child.name,
+                "path": relative,
+                "type": "folder",
+                "children": workspace_tree(child),
+            })
+        elif child.is_file():
+            entries.append({
+                "name": child.name,
+                "path": relative,
+                "type": "file",
+            })
+    return entries
+
+
+initialize_workspace()
+
+
+@app.get("/workspace/tree")
+def get_workspace_tree():
+    return {"root": WORKSPACE_ROOT.name, "children": workspace_tree(WORKSPACE_ROOT)}
+
+
+@app.get("/workspace/file")
+def read_workspace_file(path: str):
+    target = workspace_path(path)
+    if not target.is_file() or target.is_symlink():
+        raise HTTPException(404, "File not found.")
+    try:
+        if target.stat().st_size > 1000000:
+            raise HTTPException(413, "Files larger than 1 MB cannot be opened in PLBD.")
+        return {"path": path, "content": target.read_text(encoding="utf-8")}
+    except UnicodeDecodeError:
+        raise HTTPException(415, "This file is not valid UTF-8 text.")
+    except OSError:
+        raise HTTPException(500, "Unable to read the workspace file.")
+
+
+@app.post("/workspace/file", status_code=201)
+def create_workspace_file(request: WorkspaceFileRequest):
+    target = workspace_path(request.path)
+    if not target.parent.is_dir():
+        raise HTTPException(400, "The parent folder does not exist.")
+    if target.exists():
+        raise HTTPException(409, "A file or folder with that name already exists.")
+    try:
+        with target.open("x", encoding="utf-8") as file:
+            file.write(request.content)
+        return {"success": True, "path": request.path}
+    except OSError:
+        raise HTTPException(500, "Unable to create the file.")
+
+
+@app.put("/workspace/file")
+def save_workspace_file(request: WorkspaceFileRequest):
+    target = workspace_path(request.path)
+    if not target.is_file() or target.is_symlink():
+        raise HTTPException(404, "File not found.")
+    temporary = target.with_name(f".{target.name}.plbd-tmp")
+    try:
+        temporary.write_text(request.content, encoding="utf-8")
+        os.replace(temporary, target)
+        return {"success": True, "path": request.path}
+    except OSError:
+        try:
+            temporary.unlink(missing_ok=True)
+        except OSError:
+            pass
+        raise HTTPException(500, "Unable to save the file.")
+
+
+@app.post("/workspace/folder", status_code=201)
+def create_workspace_folder(request: WorkspacePathRequest):
+    target = workspace_path(request.path)
+    if not target.parent.is_dir():
+        raise HTTPException(400, "The parent folder does not exist.")
+    try:
+        target.mkdir()
+        return {"success": True, "path": request.path}
+    except FileExistsError:
+        raise HTTPException(409, "A file or folder with that name already exists.")
+    except OSError:
+        raise HTTPException(500, "Unable to create the folder.")
+
+
+@app.post("/workspace/rename")
+def rename_workspace_item(request: WorkspaceRenameRequest):
+    source = workspace_path(request.old_path)
+    destination = workspace_path(request.new_path)
+    if not source.exists() or source.is_symlink():
+        raise HTTPException(404, "The item to rename was not found.")
+    if not destination.parent.is_dir():
+        raise HTTPException(400, "The destination folder does not exist.")
+    if destination.exists():
+        raise HTTPException(409, "An item with the new name already exists.")
+    try:
+        source.rename(destination)
+        return {"success": True, "path": request.new_path}
+    except OSError:
+        raise HTTPException(500, "Unable to rename the item.")
+
+
+@app.delete("/workspace/item")
+def delete_workspace_item(path: str):
+    target = workspace_path(path)
+    if not target.exists() or target.is_symlink():
+        raise HTTPException(404, "The item to delete was not found.")
+    try:
+        if target.is_dir():
+            shutil.rmtree(target)
+        else:
+            target.unlink()
+        return {"success": True, "path": path}
+    except OSError:
+        raise HTTPException(500, "Unable to delete the item.")
 
 
 @app.get("/")
