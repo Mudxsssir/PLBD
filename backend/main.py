@@ -71,23 +71,27 @@ def initialize_workspace():
 
     source_dir = WORKSPACE_ROOT / "src"
     source_dir.mkdir(exist_ok=True)
-    (source_dir / "main.c").write_text(
-        """#include <stdio.h>
+    main_file = source_dir / "main.c"
+    if not main_file.exists():
+        main_file.write_text(
+            """#include <stdio.h>
 
 int main(void) {
     printf("Hello, PLBD!\\n");
     return 0;
 }
 """,
-        encoding="utf-8",
-    )
-    (WORKSPACE_ROOT / "README.md").write_text(
-        """# PLBD Workspace
+            encoding="utf-8",
+        )
+    readme_file = WORKSPACE_ROOT / "README.md"
+    if not readme_file.exists():
+        readme_file.write_text(
+            """# PLBD Workspace
 
 Create and manage your C source files here.
 """,
-        encoding="utf-8",
-    )
+            encoding="utf-8",
+        )
     marker.write_text("initialized", encoding="utf-8")
 
 
@@ -108,7 +112,14 @@ def workspace_path(relative_path: str, allow_root: bool = False) -> Path:
     ):
         raise HTTPException(400, "Invalid workspace path.")
 
-    resolved = (WORKSPACE_ROOT / Path(*candidate.parts)).resolve()
+    unresolved = WORKSPACE_ROOT.joinpath(*candidate.parts)
+    current = WORKSPACE_ROOT
+    for part in candidate.parts:
+        current = current / part
+        if current.is_symlink():
+            raise HTTPException(400, "Symbolic links are not supported in the workspace.")
+
+    resolved = unresolved.resolve()
     try:
         resolved.relative_to(WORKSPACE_ROOT)
     except ValueError:
