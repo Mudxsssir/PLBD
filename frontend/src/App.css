@@ -2350,3 +2350,137 @@ button.outline-item:hover {
   font-size: 9px;
   line-height: 1.4;
 }
+
+
+/* =========================================================
+   VS Code-inspired button refinement
+   Visual-only overrides; existing handlers and behavior stay unchanged.
+   ========================================================= */
+
+.plbd-app button {
+  -webkit-appearance: none;
+  appearance: none;
+  box-shadow: none;
+  text-shadow: none;
+}
+
+.plbd-app button:not(.icon-button):not(.subtle-icon):not(.tab-close):not(.activity-button):not(.workspace-main-action):not(.workspace-root-select):not(.file-item):not(.outline-item):not(.problem-row):not(.history-item):not(.focus-item):not(.finding-card):not(.text-action):not(.panel-tabs button):not(.assistant-tabs button) {
+  transition: background-color 100ms ease, border-color 100ms ease, color 100ms ease;
+}
+
+.plbd-app .run-button {
+  height: 26px;
+  min-height: 26px;
+  padding: 0 10px;
+  border: 1px solid #0e639c;
+  border-radius: 2px;
+  background: #0e639c;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0;
+  box-shadow: none;
+}
+
+.plbd-app .run-button:hover:not(:disabled) {
+  border-color: #1177bb;
+  background: #1177bb;
+  opacity: 1;
+}
+
+.plbd-app .run-button:active:not(:disabled) {
+  background: #094771;
+}
+
+.plbd-app .icon-button,
+.plbd-app .subtle-icon,
+.plbd-app .tab-close {
+  border-radius: 3px;
+  color: #cccccc;
+}
+
+.plbd-app .icon-button:hover,
+.plbd-app .subtle-icon:hover,
+.plbd-app .tab-close:hover {
+  background: #2a2d2e;
+  color: #ffffff;
+}
+
+.plbd-app .text-action {
+  color: #75beff;
+  font-size: 12px;
+  text-decoration: none;
+}
+
+.plbd-app .text-action:hover {
+  color: #9bceff;
+  text-decoration: underline;
+}
+
+.plbd-app .workspace-toolbar button,
+.plbd-app .workspace-row-actions button {
+  width: 24px;
+  height: 24px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  background: transparent;
+  color: #cccccc;
+  box-shadow: none;
+}
+
+.plbd-app .workspace-toolbar button:hover:not(:disabled),
+.plbd-app .workspace-row-actions button:hover:not(:disabled) {
+  border-color: transparent;
+  background: #2a2d2e;
+  color: #ffffff;
+}
+
+.plbd-app .workspace-toolbar button:active:not(:disabled),
+.plbd-app .workspace-row-actions button:active:not(:disabled) {
+  background: #37373d;
+}
+
+.plbd-app .workspace-row-actions button[title="Delete"]:hover:not(:disabled) {
+  color: #f48771;
+}
+
+.plbd-app .activity-button {
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.plbd-app .activity-button:hover {
+  background: #222222;
+}
+
+.plbd-app .section-label.explorer-toggle,
+.plbd-app .workspace-root-select,
+.plbd-app .workspace-main-action,
+.plbd-app .outline-item,
+.plbd-app .problem-row,
+.plbd-app .focus-item {
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.plbd-app .history-item,
+.plbd-app .finding-card {
+  border-radius: 3px;
+  box-shadow: none;
+}
+
+.plbd-app .history-item:hover,
+.plbd-app .finding-card:hover {
+  border-color: #454545;
+  background: #252526;
+}
+
+.plbd-app button:focus-visible {
+  outline: 1px solid #007fd4;
+  outline-offset: -1px;
+  box-shadow: none;
+}
+
+.plbd-app button:disabled {
+  box-shadow: none;
+}
