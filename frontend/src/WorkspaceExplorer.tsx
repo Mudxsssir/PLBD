@@ -262,7 +262,7 @@ export default function WorkspaceExplorer({
         <div className="workspace-toolbar">
           <button title="New File" onClick={() => void createItem("file")} disabled={busy}><Plus size={15} /></button>
           <button title="New Folder" onClick={() => void createItem("folder")} disabled={busy}><FolderPlus size={15} /></button>
-          <button title="Refresh Explorer" onClick={() => void refreshTree().catch((reason) => setError(reason.message))} disabled={busy}><RefreshCw size={14} /></button>
+          <button title="Refresh Explorer" onClick={() => void refreshTree().catch((reason: unknown) => setError(reason instanceof Error ? reason.message : "Unable to refresh workspace."))} disabled={busy}><RefreshCw size={14} /></button>
         </div>
       </div>
       <div className="workspace-tree">
