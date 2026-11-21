@@ -1,4 +1,6 @@
 
+import sys
+
 from logic_analyzer import analyze_code
 
 
@@ -150,3 +152,6 @@ for name, code, expected_rule in tests:
 
 
 print(f"RESULT: {passed_count}/{len(tests)} tests passed.")
+
+if passed_count != len(tests):
+    sys.exit(1)
