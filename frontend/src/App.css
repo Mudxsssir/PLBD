@@ -2353,8 +2353,8 @@ button.outline-item:hover {
 
 
 /* =========================================================
-   VS Code-inspired button refinement
-   Visual-only overrides; existing handlers and behavior stay unchanged.
+   CONSISTENT VS CODE-STYLE BUTTON SYSTEM
+   Visual-only overrides. No handlers or behavior are changed.
    ========================================================= */
 
 .plbd-app button {
@@ -2362,24 +2362,25 @@ button.outline-item:hover {
   appearance: none;
   box-shadow: none;
   text-shadow: none;
+  font-family: inherit;
 }
 
-.plbd-app button:not(.icon-button):not(.subtle-icon):not(.tab-close):not(.activity-button):not(.workspace-main-action):not(.workspace-root-select):not(.file-item):not(.outline-item):not(.problem-row):not(.history-item):not(.focus-item):not(.finding-card):not(.text-action):not(.panel-tabs button):not(.assistant-tabs button) {
-  transition: background-color 100ms ease, border-color 100ms ease, color 100ms ease;
-}
-
+/* Primary action */
 .plbd-app .run-button {
-  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   min-height: 26px;
   padding: 0 10px;
   border: 1px solid #0e639c;
   border-radius: 2px;
   background: #0e639c;
-  color: #fff;
+  color: #ffffff;
   font-size: 12px;
   font-weight: 500;
   letter-spacing: 0;
-  box-shadow: none;
+  transition: background-color 100ms ease, border-color 100ms ease;
 }
 
 .plbd-app .run-button:hover:not(:disabled) {
@@ -2389,23 +2390,74 @@ button.outline-item:hover {
 }
 
 .plbd-app .run-button:active:not(:disabled) {
+  border-color: #094771;
   background: #094771;
 }
 
-.plbd-app .icon-button,
-.plbd-app .subtle-icon,
-.plbd-app .tab-close {
-  border-radius: 3px;
-  color: #cccccc;
+/* Secondary action */
+.plbd-app .complete-button {
+  min-height: 30px;
+  padding: 6px 10px;
+  border: 1px solid #454545;
+  border-radius: 2px;
+  background: #2d2d30;
+  color: #e4e4e4;
+  font-size: 11px;
+  font-weight: 500;
+  transition: background-color 100ms ease, border-color 100ms ease, color 100ms ease;
 }
 
-.plbd-app .icon-button:hover,
-.plbd-app .subtle-icon:hover,
-.plbd-app .tab-close:hover {
+.plbd-app .complete-button:hover:not(:disabled) {
+  border-color: #626262;
+  background: #383838;
+}
+
+.plbd-app .complete-button.completed {
+  border-color: #287a54;
+  background: rgba(40, 122, 84, 0.12);
+  color: #65d6a0;
+}
+
+/* Icon-only controls */
+.plbd-app .icon-button,
+.plbd-app .subtle-icon,
+.plbd-app .tab-close,
+.plbd-app .exercise-heading button,
+.plbd-app .workspace-toolbar button,
+.plbd-app .workspace-row-actions button {
+  border: 1px solid transparent;
+  border-radius: 3px;
+  background: transparent;
+  color: #cccccc;
+  box-shadow: none;
+  transition: background-color 100ms ease, color 100ms ease, border-color 100ms ease;
+}
+
+.plbd-app .icon-button:hover:not(:disabled),
+.plbd-app .subtle-icon:hover:not(:disabled),
+.plbd-app .tab-close:hover:not(:disabled),
+.plbd-app .exercise-heading button:hover:not(:disabled),
+.plbd-app .workspace-toolbar button:hover:not(:disabled),
+.plbd-app .workspace-row-actions button:hover:not(:disabled) {
+  border-color: transparent;
   background: #2a2d2e;
   color: #ffffff;
 }
 
+.plbd-app .icon-button:active:not(:disabled),
+.plbd-app .subtle-icon:active:not(:disabled),
+.plbd-app .tab-close:active:not(:disabled),
+.plbd-app .exercise-heading button:active:not(:disabled),
+.plbd-app .workspace-toolbar button:active:not(:disabled),
+.plbd-app .workspace-row-actions button:active:not(:disabled) {
+  background: #37373d;
+}
+
+.plbd-app .workspace-row-actions button[title="Delete"]:hover:not(:disabled) {
+  color: #f48771;
+}
+
+/* Text actions */
 .plbd-app .text-action {
   color: #75beff;
   font-size: 12px;
@@ -2417,33 +2469,32 @@ button.outline-item:hover {
   text-decoration: underline;
 }
 
-.plbd-app .workspace-toolbar button,
-.plbd-app .workspace-row-actions button {
-  width: 24px;
-  height: 24px;
-  border: 1px solid transparent;
-  border-radius: 3px;
+/* Flat navigation and tab controls */
+.plbd-app .panel-tabs button,
+.plbd-app .assistant-tabs button {
+  border: 0;
+  border-radius: 0;
   background: transparent;
-  color: #cccccc;
+  color: #9d9d9d;
   box-shadow: none;
 }
 
-.plbd-app .workspace-toolbar button:hover:not(:disabled),
-.plbd-app .workspace-row-actions button:hover:not(:disabled) {
-  border-color: transparent;
-  background: #2a2d2e;
+.plbd-app .panel-tabs button:hover,
+.plbd-app .assistant-tabs button:hover {
+  color: #d7d7d7;
+}
+
+.plbd-app .panel-tabs button.active,
+.plbd-app .assistant-tabs button.active {
   color: #ffffff;
 }
 
-.plbd-app .workspace-toolbar button:active:not(:disabled),
-.plbd-app .workspace-row-actions button:active:not(:disabled) {
-  background: #37373d;
+.plbd-app .panel-tabs button.active::after,
+.plbd-app .assistant-tabs button.active::after {
+  background: #007fd4;
 }
 
-.plbd-app .workspace-row-actions button[title="Delete"]:hover:not(:disabled) {
-  color: #f48771;
-}
-
+/* Explorer and editor rows remain flat, like VS Code */
 .plbd-app .activity-button {
   border-radius: 0;
   box-shadow: none;
@@ -2453,9 +2504,19 @@ button.outline-item:hover {
   background: #222222;
 }
 
-.plbd-app .section-label.explorer-toggle,
+.plbd-app .workspace-root-select:hover,
+.plbd-app .workspace-main-action:hover,
+.plbd-app .section-label.explorer-toggle:hover,
+.plbd-app .outline-item:hover,
+.plbd-app .file-item:not(.selected):hover,
+.plbd-app .problem-row:hover {
+  background: #2a2d2e;
+  color: #ffffff;
+}
+
 .plbd-app .workspace-root-select,
 .plbd-app .workspace-main-action,
+.plbd-app .section-label.explorer-toggle,
 .plbd-app .outline-item,
 .plbd-app .problem-row,
 .plbd-app .focus-item {
@@ -2463,6 +2524,7 @@ button.outline-item:hover {
   box-shadow: none;
 }
 
+/* Clickable content cards are not styled as action buttons */
 .plbd-app .history-item,
 .plbd-app .finding-card {
   border-radius: 3px;
@@ -2475,6 +2537,7 @@ button.outline-item:hover {
   background: #252526;
 }
 
+/* Consistent keyboard focus */
 .plbd-app button:focus-visible {
   outline: 1px solid #007fd4;
   outline-offset: -1px;
