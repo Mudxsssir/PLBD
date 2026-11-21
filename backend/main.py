@@ -72,15 +72,20 @@ def initialize_workspace():
     source_dir = WORKSPACE_ROOT / "src"
     source_dir.mkdir(exist_ok=True)
     (source_dir / "main.c").write_text(
-        '#include <stdio.h>\\n\\n'
-        'int main(void) {\\n'
-        '    printf("Hello, PLBD!\\\\n");\\n'
-        '    return 0;\\n'
-        '}\\n',
+        """#include <stdio.h>
+
+int main(void) {
+    printf("Hello, PLBD!\\n");
+    return 0;
+}
+""",
         encoding="utf-8",
     )
     (WORKSPACE_ROOT / "README.md").write_text(
-        "# PLBD Workspace\\n\\nCreate and manage your C source files here.\\n",
+        """# PLBD Workspace
+
+Create and manage your C source files here.
+""",
         encoding="utf-8",
     )
     marker.write_text("initialized", encoding="utf-8")
@@ -99,7 +104,7 @@ def workspace_path(relative_path: str, allow_root: bool = False) -> Path:
         candidate.is_absolute()
         or not candidate.parts
         or any(part in ("", ".", "..") for part in candidate.parts)
-        or "\\x00" in normalized
+        or "\x00" in normalized
     ):
         raise HTTPException(400, "Invalid workspace path.")
 
