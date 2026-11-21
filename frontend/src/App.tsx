@@ -163,6 +163,14 @@ function safeParseArray<T>(value: string | null): T[] {
   }
 }
 
+function loadArrayFromStorage<T>(key: string): T[] {
+  try {
+    return safeParseArray<T>(localStorage.getItem(key));
+  } catch {
+    return [];
+  }
+}
+
 function App() {
   const [code, setCode] = useState(STARTER_CODE);
   const [activeFile, setActiveFile] = useState<"main.c" | "README.md">("main.c");
@@ -171,29 +179,29 @@ function App() {
   const [outlineExpanded, setOutlineExpanded] = useState(true);
 
   const outlineItems = useMemo(() => {
-    return code.split("\\n").flatMap((line, index) => {
+    return code.split("\n").flatMap((line, index) => {
       const trimmed = line.trim();
       const lineNumber = index + 1;
 
       if (!trimmed || trimmed.startsWith("//")) return [];
 
-      const include = trimmed.match(/^#include\\s+[<"]([^>"]+)[>"]/);
+      const include = trimmed.match(/^#include\s+[<"]([^>"]+)[>"]/);
       if (include) {
         return [{ label: include[1], kind: "Include", line: lineNumber }];
       }
 
-      const struct = trimmed.match(/^\\s*(?:typedef\\s+)?struct\\s+([A-Za-z_]\\w*)?/);
+      const struct = trimmed.match(/^\s*(?:typedef\s+)?struct\s+([A-Za-z_]\w*)?/);
       if (struct) {
         return [{ label: struct[1] || "struct", kind: "Structure", line: lineNumber }];
       }
 
-      const enumMatch = trimmed.match(/^\\s*(?:typedef\\s+)?enum\\s+([A-Za-z_]\\w*)?/);
+      const enumMatch = trimmed.match(/^\s*(?:typedef\s+)?enum\s+([A-Za-z_]\w*)?/);
       if (enumMatch) {
         return [{ label: enumMatch[1] || "enum", kind: "Enumeration", line: lineNumber }];
       }
 
       const functionMatch = trimmed.match(
-        /^\\s*(?:static\\s+)?(?:inline\\s+)?(?:const\\s+)?[A-Za-z_]\\w*(?:\\s*\\*)?\\s+([A-Za-z_]\\w*)\\s*\\([^;]*\\)\\s*\\{/
+        /^\s*(?:static\s+)?(?:inline\s+)?(?:const\s+)?[A-Za-z_]\w*(?:\s*\*)?\s+([A-Za-z_]\w*)\s*\([^;]*\)\s*\{/
       );
       if (functionMatch) {
         return [{ label: functionMatch[1], kind: "Function", line: lineNumber }];
@@ -227,14 +235,14 @@ function App() {
     useState<editor.IStandaloneCodeEditor | null>(null);
 
   const [completedExercises, setCompletedExercises] =
-    useState<string[]>([]);
-
-  const [storageLoaded, setStorageLoaded] = useState(false);
+    useState<string[]>(() => loadArrayFromStorage("plbd-completed"));
 
   const [expandedExercise, setExpandedExercise] =
     useState<string | null>(null);
 
-  const [history, setHistory] = useState<HistoryEntry[]>([]);
+  const [history, setHistory] = useState<HistoryEntry[]>(() =>
+    loadArrayFromStorage<HistoryEntry>("plbd-history")
+  );
   const [searchQuery, setSearchQuery] = useState("");
   const [analysisVersion, setAnalysisVersion] = useState(0);
 
@@ -246,10 +254,10 @@ function App() {
   const [cursorColumn, setCursorColumn] = useState(1);
   const [showSettings, setShowSettings] = useState(false);
 
-  const diagnostics = result.diagnostics || [];
-  const findings = result.logic_findings || [];
-  const misconceptions = result.misconceptions || [];
-  const recommendations = result.recommendations || [];
+  const diagnostics = result.diagnostics;
+  const findings = result.logic_findings;
+  const misconceptions = result.misconceptions;
+  const recommendations = result.recommendations;
 
   const exercises = useMemo(
     () => recommendations.flatMap((item) => item.exercises || []),
@@ -303,35 +311,22 @@ function App() {
     return Array.from(unique.values());
   }, [misconceptions]);
 
-  // Restore saved application data.
+  // Persist locally restored learning progress and analysis history.
   useEffect(() => {
-    const savedHistory = safeParseArray<HistoryEntry>(
-      localStorage.getItem("plbd-history")
-    );
+    try {
+      localStorage.setItem(
+        "plbd-completed",
+        JSON.stringify(completedExercises)
+      );
 
-    const savedCompleted = safeParseArray<string>(
-      localStorage.getItem("plbd-completed")
-    );
-
-    setHistory(savedHistory);
-    setCompletedExercises(savedCompleted);
-    setStorageLoaded(true);
-  }, []);
-
-  // Persist data only after restoration is complete.
-  useEffect(() => {
-    if (!storageLoaded) return;
-
-    localStorage.setItem(
-      "plbd-completed",
-      JSON.stringify(completedExercises)
-    );
-
-    localStorage.setItem(
-      "plbd-history",
-      JSON.stringify(history)
-    );
-  }, [storageLoaded, completedExercises, history]);
+      localStorage.setItem(
+        "plbd-history",
+        JSON.stringify(history)
+      );
+    } catch {
+      // Keep the application usable if browser storage is unavailable.
+    }
+  }, [completedExercises, history]);
 
   // Check the real backend health endpoint.
   useEffect(() => {

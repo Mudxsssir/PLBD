@@ -21,8 +21,10 @@ export default function TerminalPanel({
   const socketRef = useRef<WebSocket | null>(null);
   const codeRef = useRef(code);
 
-  // Always keep the latest editor content available.
-  codeRef.current = code;
+  // Keep the latest editor content available to the next Run action.
+  useEffect(() => {
+    codeRef.current = code;
+  }, [code]);
 
   useEffect(() => {
     if (!containerRef.current) return;

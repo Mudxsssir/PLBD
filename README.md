@@ -127,9 +127,9 @@ PLBD follows a frontend-backend architecture.
 | Backend Framework | FastAPI |
 | Compiler Diagnostics | Clang |
 | API Communication | REST API |
-| Data Storage | SQLite (backend project dependency) and Browser LocalStorage |
+| Data Storage | Browser LocalStorage for exercise progress and analysis history |
 
-**Note:** The current frontend stores exercise completion and analysis history in browser LocalStorage. The current analysis workflow does not use SQLite for user progress storage.
+**Note:** The current frontend stores exercise completion and analysis history in browser LocalStorage. User accounts and cloud-synchronized progress are not currently implemented.
 
 ---
 
@@ -158,6 +158,10 @@ PLBD/
 |
 |-- docs/
 |
+|-- Dockerfile
+|-- .github/
+|   |-- workflows/
+|       |-- ci.yml
 |-- README.md
 ```
 
@@ -171,13 +175,14 @@ Install the following:
 
 - Python 3
 - Node.js and npm
-- Clang compiler
+- Clang compiler (for compiler diagnostics)
+- Docker Desktop (for isolated C program execution)
 - Visual Studio Code (recommended)
 
 ### Step 1: Clone the repository
 
 ```bash
-git clone <YOUR_REPOSITORY_URL>
+git clone https://github.com/Mudxsssir/PLBD.git
 cd PLBD
 ```
 
@@ -203,7 +208,17 @@ Verify:
 clang --version
 ```
 
-### Step 4: Start the backend
+### Step 4: Build the isolated C runner image
+
+Start Docker Desktop, then run this command from the project root:
+
+```bash
+docker build -t plbd-c-runner:1.0 .
+```
+
+The backend uses this image to compile and execute learner C programs in a restricted container with no network access and resource limits. Build the image once; rebuild it if the root `Dockerfile` changes.
+
+### Step 5: Start the backend
 
 From the project root directory:
 
@@ -223,7 +238,7 @@ API documentation:
 http://127.0.0.1:8000/docs
 ```
 
-### Step 5: Install frontend dependencies
+### Step 6: Install frontend dependencies
 
 Open another terminal:
 
@@ -232,7 +247,7 @@ cd frontend
 npm install
 ```
 
-### Step 6: Start the frontend
+### Step 7: Start the frontend
 
 ```bash
 npm run dev
@@ -284,13 +299,40 @@ The logic analyzer uses rule-based code inspection and regular-expression techni
 - Complex C syntax and advanced control structures may not be analyzed accurately.
 - Rule-based analysis may produce false positives or miss certain mistakes.
 - The current system focuses on C programming.
-- The backend performs static analysis and does not execute submitted C programs.
+- The backend executes C programs using the `plbd-c-runner:1.0` Docker image. Execution is restricted by container resource limits, a read-only root filesystem, dropped Linux capabilities, and disabled network access. Docker Desktop must be running and the image must be built before execution.
 - Learning recommendations are generated from a predefined exercise library.
 - Learning progress is stored locally in the browser rather than in individual user accounts.
 
 ---
 
-## 10. Future Enhancements
+## 10. Testing
+
+Run the rule-based analyzer tests:
+
+```bash
+cd backend
+python3 test_logic.py
+```
+
+Build the frontend for production:
+
+```bash
+cd frontend
+npm ci
+npm run build
+```
+
+Build the isolated C execution image from the project root:
+
+```bash
+docker build -t plbd-c-runner:1.0 .
+```
+
+A GitHub Actions workflow runs the frontend production build, backend logic tests, and Docker image build on pushes and pull requests.
+
+---
+
+## 11. Future Enhancements
 
 - Expand support for additional programming languages.
 - Introduce more advanced logical mistake detection.
@@ -303,7 +345,7 @@ The logic analyzer uses rule-based code inspection and regular-expression techni
 
 ---
 
-## 11. Conclusion
+## 12. Conclusion
 
 PLBD aims to improve programming education by going beyond conventional compiler diagnostics.
 
