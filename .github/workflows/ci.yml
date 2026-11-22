@@ -2,9 +2,9 @@ name: PLBD CI
 
 on:
   push:
-    branches: [main, audit-fixes]
+    branches: [main, audit-fixes, audit/diagnostics]
   pull_request:
-    branches: [main]
+    branches: [main, redesign/vscode-workbench]
 
 permissions:
   contents: read

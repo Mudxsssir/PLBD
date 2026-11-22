@@ -83,6 +83,42 @@ tests = [
         None
     ),
     (
+        "Unbraced while-loop without update",
+        """
+        int main(void) {
+            int i = 0;
+            while (i < 5)
+                printf("%d", i);
+            return 0;
+        }
+        """,
+        "PLBD-LOOP-001"
+    ),
+    (
+        "Unbraced while-loop with update",
+        """
+        int main(void) {
+            int i = 0;
+            while (i < 5)
+                i++;
+            return 0;
+        }
+        """,
+        None
+    ),
+    (
+        "Unbraced for-loop array boundary",
+        """
+        int main(void) {
+            int values[3];
+            for (int i = 0; i <= 3; i++)
+                values[i] = i;
+            return 0;
+        }
+        """,
+        "PLBD-ARR-001"
+    ),
+    (
         "Assignment instead of comparison",
         """
         int main() {
