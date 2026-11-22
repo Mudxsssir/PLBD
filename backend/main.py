@@ -297,6 +297,7 @@ def analyze(request: CodeRequest):
                     "-Wall",
                     "-Wextra",
                     "-Wpedantic",
+                    "-Werror=format",
                     "-fsyntax-only",
                     "-fno-color-diagnostics",
                     source
@@ -410,7 +411,7 @@ def run_code(request: CodeExecutionRequest):
                 "/tmp:rw,exec,nosuid,nodev,size=32m,uid=10001,gid=10001",
                 DOCKER_IMAGE,
                 "sh", "-c",
-                "gcc -std=c11 -Wall -Wextra -Wpedantic "
+                "gcc -std=c11 -Wall -Wextra -Wpedantic -Werror=format "
                 "/workspace/main.c -o /tmp/plbd-program "
                 "&& timeout 3s /tmp/plbd-program"
             ]
@@ -543,7 +544,7 @@ async def run_terminal(websocket: WebSocket):
                 DOCKER_IMAGE,
                 "sh", "-c",
                 "gcc -include /workspace/plbd-io.h "
-                "-std=c11 -Wall -Wextra -Wpedantic "
+                "-std=c11 -Wall -Wextra -Wpedantic -Werror=format "
                 "/workspace/main.c -o /tmp/plbd-program "
                 "&& exec timeout 15s /tmp/plbd-program"
             ]
