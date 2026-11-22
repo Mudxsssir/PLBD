@@ -32,10 +32,10 @@ export default function TerminalPanel({
     const terminal = new Terminal({
       cursorBlink: true,
       fontSize: 12,
-      fontFamily: "'JetBrains Mono', monospace",
+      fontFamily: "'Menlo', Monaco, 'Courier New', monospace",
       convertEol: true,
       theme: {
-        background: "#111318",
+        background: "#1e1e1e",
         foreground: "#d4d4d4",
         cursor: "#ffffff",
         selectionBackground: "#264f78",
