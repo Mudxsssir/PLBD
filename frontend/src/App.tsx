@@ -17,6 +17,7 @@ import {
   Lightbulb,
   Play,
   RefreshCw,
+  Save,
   Search,
   Settings,
   X,
@@ -152,6 +153,9 @@ function App() {
   const [code, setCode] = useState(STARTER_CODE);
   const [activeFile, setActiveFile] = useState("");
   const [fileReady, setFileReady] = useState(false);
+  const [savedCode, setSavedCode] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [terminalCode, setTerminalCode] = useState("");
   const [outlineExpanded, setOutlineExpanded] = useState(true);
 
   const outlineItems = useMemo(() => {
@@ -233,34 +237,63 @@ function App() {
   const openWorkspaceFile = useCallback((path: string, content: string) => {
     setActiveFile(path);
     setCode(content);
+    setSavedCode(content);
     setFileReady(true);
     setResult(emptyResult);
     setSelectedFinding(null);
     setAnalysisError("");
   }, []);
 
-  const saveCurrentFile = useCallback(async () => {
-    if (!fileReady || !activeFile) return;
-    const response = await fetch(API_URL + "/workspace/file", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ path: activeFile, content: code }),
-    });
-    if (!response.ok) {
-      const body = await response.json().catch(() => null);
-      throw new Error(body?.detail || "Unable to save file.");
+  const isDirty = fileReady && savedCode !== null && code !== savedCode;
+
+  const saveCurrentFile = useCallback(async (contentToSave = code) => {
+    if (!fileReady || !activeFile) {
+      throw new Error("Open a workspace file before saving.");
+    }
+
+    const pathToSave = activeFile;
+    setIsSaving(true);
+
+    try {
+      const response = await fetch(API_URL + "/workspace/file", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ path: pathToSave, content: contentToSave }),
+      });
+
+      if (!response.ok) {
+        const body = await response.json().catch(() => null);
+        throw new Error(body?.detail || "Unable to save file.");
+      }
+
+      setSavedCode(contentToSave);
+    } finally {
+      setIsSaving(false);
     }
   }, [activeFile, code, fileReady]);
 
+  const saveBeforeLeaving = useCallback(async () => {
+    if (isDirty) {
+      await saveCurrentFile();
+    }
+  }, [isDirty, saveCurrentFile]);
+
   useEffect(() => {
-    if (!fileReady || !activeFile) return;
-    const timer = window.setTimeout(() => {
-      void saveCurrentFile().catch((error: unknown) => {
-        setOutput(error instanceof Error ? error.message : "Unable to save file.");
-      });
-    }, 450);
-    return () => window.clearTimeout(timer);
-  }, [saveCurrentFile, activeFile, fileReady]);
+    const handleSaveShortcut = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "s") {
+        event.preventDefault();
+
+        if (!fileReady || !activeFile || isSaving || !isDirty) return;
+
+        void saveCurrentFile().catch((error: unknown) => {
+          setOutput(error instanceof Error ? error.message : "Unable to save file.");
+        });
+      }
+    };
+
+    window.addEventListener("keydown", handleSaveShortcut);
+    return () => window.removeEventListener("keydown", handleSaveShortcut);
+  }, [activeFile, fileReady, isDirty, isSaving, saveCurrentFile]);
 
   const diagnostics = result.diagnostics;
   const findings = result.logic_findings;
@@ -601,18 +634,39 @@ Recommended exercises: ${normalized.recommendations.reduce(
     setAnalysisVersion((previous) => previous + 1);
   };
 
-  // Start an interactive C execution session in the terminal.
-  const runCode = () => {
-    if (!activeFile.toLowerCase().endsWith(".c") || !code.trim() || isRunning) return;
+  // Save the exact editor snapshot before starting C execution.
+  const runCode = async () => {
+    if (
+      !fileReady ||
+      !activeFile.toLowerCase().endsWith(".c") ||
+      !code.trim() ||
+      isRunning ||
+      isSaving
+    ) return;
 
-    setBottomTab("Output");
-    setPanelOpen(true);
-    setTerminalRunId((previous) => previous + 1);
+    const codeToRun = code;
+
+    try {
+      await saveCurrentFile(codeToRun);
+      setTerminalCode(codeToRun);
+      setBottomTab("Output");
+      setPanelOpen(true);
+      setTerminalRunId((previous) => previous + 1);
+    } catch (error) {
+      setOutput(
+        error instanceof Error
+          ? error.message
+          : "Unable to save file. Program was not run."
+      );
+      setBottomTab("Output");
+      setPanelOpen(true);
+    }
   };
 
   const loadHistory = (entry: HistoryEntry) => {
     setCode(entry.code);
     setFileReady(false);
+    setSavedCode(null);
     setActiveActivity("explorer");
     setSidebarOpen(true);
 
@@ -766,7 +820,7 @@ Logic findings: ${entry.findings}`
                 <WorkspaceExplorer
                   activeFile={activeFile}
                   onOpenFile={openWorkspaceFile}
-                  onBeforeOpen={saveCurrentFile}
+                  onBeforeOpen={saveBeforeLeaving}
                   onPathRenamed={(oldPath, newPath) => {
                     setActiveFile((current) =>
                       current === oldPath || current.startsWith(oldPath + "/")
@@ -778,6 +832,7 @@ Logic findings: ${entry.findings}`
                     setActiveFile("");
                     setCode("");
                     setFileReady(false);
+                    setSavedCode(null);
                   }}
                 />
                 {activeFile.toLowerCase().endsWith(".c") && (
@@ -963,7 +1018,7 @@ Logic findings: ${entry.findings}`
             <div className="editor-tab active">
               <FileCode2 size={15} />
               <span>{activeFile.split("/").pop() || "No file open"}</span>
-              {activeFile && <span className="tab-unsaved" />}
+              {isDirty && <span className="tab-unsaved" title="Unsaved changes" />}
 
               {activeFile && (
                 <button
@@ -978,9 +1033,36 @@ Logic findings: ${entry.findings}`
 
             <div className="editor-tab-actions">
               <button
+
+                className="save-button"
+
+                onClick={() => {
+
+                  void saveCurrentFile().catch((error: unknown) => {
+
+                    setOutput(error instanceof Error ? error.message : "Unable to save file.");
+
+                  });
+
+                }}
+
+                disabled={!fileReady || !activeFile || !isDirty || isSaving}
+
+                title="Save (⌘S)"
+
+              >
+
+                <Save size={13} />
+
+                <span>{isSaving ? "Saving..." : "Save"}</span>
+
+              </button>
+
+              <button
+
                 className="run-button"
                 onClick={runCode}
-                disabled={!activeFile.toLowerCase().endsWith(".c") || isRunning || !code.trim()}
+                disabled={!fileReady || !activeFile.toLowerCase().endsWith(".c") || isRunning || isSaving || !code.trim()}
                 title="Compile and run C program"
               >
                 <Play size={13} />
@@ -1155,7 +1237,7 @@ Logic findings: ${entry.findings}`
               ) : (
                 <div className="execution-output-panel">
                   <TerminalPanel
-                    code={code}
+                    code={terminalCode}
                     runId={terminalRunId}
                     onRunningChange={setIsRunning}
                   />

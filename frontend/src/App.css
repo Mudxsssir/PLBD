@@ -2547,3 +2547,33 @@ button.outline-item:hover {
 .plbd-app button:disabled {
   box-shadow: none;
 }
+
+
+/* Explicit workspace save action */
+.plbd-app .save-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 26px;
+  padding: 0 10px;
+  border: 1px solid #454545;
+  border-radius: 2px;
+  background: #2d2d30;
+  color: #cccccc;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 100ms ease, border-color 100ms ease;
+}
+
+.plbd-app .save-button:hover:not(:disabled) {
+  border-color: #626262;
+  background: #383838;
+  color: #ffffff;
+}
+
+.plbd-app .save-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
