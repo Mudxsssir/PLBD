@@ -1111,19 +1111,19 @@ Logic findings: ${entry.findings}`
               onMount={handleEditorMount}
               options={{
                 fontSize: 14,
-                fontFamily:
-                  "'JetBrains Mono', 'SFMono-Regular', Consolas, monospace",
-                minimap: { enabled: false },
-                padding: { top: 18, bottom: 18 },
+                fontFamily: "Menlo, Monaco, 'Courier New', monospace",
+                lineHeight: 22,
+                minimap: { enabled: true, side: "right", size: "proportional" },
+                padding: { top: 8, bottom: 8 },
                 scrollBeyondLastLine: false,
                 automaticLayout: true,
                 lineNumbers: "on",
                 renderLineHighlight: "all",
                 roundedSelection: false,
                 tabSize: 4,
-                wordWrap: "on",
+                wordWrap: "off",
                 smoothScrolling: true,
-                cursorBlinking: "smooth",
+                cursorBlinking: "blink",
                 bracketPairColorization: { enabled: true },
                 guides: {
                   indentation: true,
