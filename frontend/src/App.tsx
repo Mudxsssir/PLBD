@@ -1073,7 +1073,7 @@ Logic findings: ${entry.findings}`
                 className="icon-button"
                 title="Analyze now"
                 onClick={analyzeNow}
-                disabled={activeFile !== "main.c" || isAnalyzing}
+                disabled={!activeFile.toLowerCase().endsWith(".c") || isAnalyzing}
               >
                 <RefreshCw
                   size={15}
@@ -1195,7 +1195,7 @@ Logic findings: ${entry.findings}`
                       </span>
 
                       <span className="problem-location">
-                        main.c ({item.line}, {item.column})
+                        {activeFile.split("/").pop() || "main.c"} ({item.line}, {item.column})
                       </span>
                     </button>
                   ))}
@@ -1213,7 +1213,7 @@ Logic findings: ${entry.findings}`
                       </span>
 
                       <span className="problem-location">
-                        main.c ({item.line})
+                        {activeFile.split("/").pop() || "main.c"} ({item.line})
                       </span>
                     </button>
                   ))}
