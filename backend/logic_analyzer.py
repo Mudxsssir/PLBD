@@ -43,6 +43,28 @@ def variable_is_updated(variable: str, code: str) -> bool:
     return re.search(pattern, code) is not None
 
 
+def get_statement_body(code: str, start: int) -> str:
+    """Extract a simple unbraced loop statement through its terminating semicolon."""
+    depth = 0
+    position = start
+
+    while position < len(code):
+        char = code[position]
+        if char == "(":
+            depth += 1
+        elif char == ")":
+            depth = max(0, depth - 1)
+        elif char == ";" and depth == 0:
+            return code[start:position + 1]
+        elif char == "{" or char == "}":
+            # A nested compound statement needs a full C parser; do not
+            # pretend a partial extraction is a complete loop body.
+            return ""
+        position += 1
+
+    return ""
+
+
 def extract_loops(code: str):
     """Extract for/while loop headers and their bodies."""
     masked = mask_comments_and_strings(code)
@@ -94,10 +116,12 @@ def extract_loops(code: str):
         while brace < len(masked) and masked[brace].isspace():
             brace += 1
 
-        if brace >= len(masked) or masked[brace] != "{":
-            continue
-
-        body = get_loop_body(masked, brace)
+        if brace < len(masked) and masked[brace] == "{":
+            body = get_loop_body(masked, brace)
+        else:
+            body = get_statement_body(masked, position)
+            if not body:
+                continue
 
         yield {
             "keyword": keyword,
