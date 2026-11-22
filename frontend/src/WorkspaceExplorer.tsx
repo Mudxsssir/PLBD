@@ -190,6 +190,13 @@ export default function WorkspaceExplorer({
     try {
       setBusy(true);
       setError("");
+      const deletingActiveFile =
+        activeFile === node.path || activeFile.startsWith(`${node.path}/`);
+      if (deletingActiveFile) {
+        // Save the active editor buffer before the filesystem removes its file.
+        // If saving fails, the catch below cancels deletion.
+        await onBeforeOpen();
+      }
       await apiRequest(`/workspace/item?path=${encodeURIComponent(node.path)}`, { method: "DELETE" });
       const nextTree = await refreshTree();
       if (activeFile === node.path || activeFile.startsWith(`${node.path}/`)) {
