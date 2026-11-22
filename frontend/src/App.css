@@ -10,16 +10,16 @@
   --panel-secondary: #202020;
   --surface: #252526;
   --surface-hover: #2a2d2e;
-  --border: #333333;
+  --border: #2b2b2b;
   --border-soft: #292929;
 
-  --text: #e4e4e7;
-  --muted: #a1a1aa;
-  --subtle: #71717a;
+  --text: #cccccc;
+  --muted: #a0a0a0;
+  --subtle: #858585;
 
-  --accent: #9b8cff;
-  --accent-soft: rgba(155, 140, 255, 0.12);
-  --accent-border: rgba(155, 140, 255, 0.35);
+  --accent: #007acc;
+  --accent-soft: rgba(0, 122, 204, 0.14);
+  --accent-border: rgba(0, 122, 204, 0.4);
 
   --success: #4ec9b0;
   --warning: #cca700;
@@ -32,11 +32,9 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-
   background: var(--bg);
   color: var(--text);
-
-  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 13px;
   line-height: 1.5;
 }
@@ -68,7 +66,7 @@
 }
 
 .plbd-app ::selection {
-  background: rgba(155, 140, 255, 0.3);
+  background: rgba(38, 79, 120, 0.55);
 }
 
 /* =========================================================
@@ -217,7 +215,7 @@
 }
 
 .text-action:hover {
-  color: #c2b8ff;
+  color: #75beff;
   text-decoration: underline;
 }
 
@@ -1061,7 +1059,7 @@ button.file-item {
 
 .finding-card:hover {
   border-color: var(--accent-border);
-  background: #25242c;
+  background: #252526;
 }
 
 .finding-card-heading {
@@ -1229,14 +1227,14 @@ button.file-item {
   border: 1px solid var(--accent-border);
   border-radius: 4px;
   background: var(--accent-soft);
-  color: #c5bbff;
+  color: #75beff;
   font-size: 10px;
   font-weight: 600;
   cursor: pointer;
 }
 
 .complete-button:hover {
-  background: rgba(155, 140, 255, 0.2);
+  background: rgba(0, 122, 204, 0.18);
 }
 
 .complete-button.completed {
@@ -1303,8 +1301,8 @@ button.file-item {
   gap: 10px;
   padding: 0 10px;
 
-  background: #25213c;
-  color: #e4e0ff;
+  background: #007acc;
+  color: #ffffff;
   font-size: 10px;
 }
 
@@ -1601,7 +1599,7 @@ button.file-item {
 }
 
 .history-item:hover {
-  background: var(--surface, #1b1b24);
+  background: var(--surface, #252526);
   border-color: var(--border, #262630);
 }
 
@@ -1639,11 +1637,11 @@ button.file-item {
   padding: 14px;
   border: 1px solid var(--border, #262630);
   border-radius: 8px;
-  background: var(--panel-2, #15151c);
+  background: var(--panel-2, #181818);
 }
 
 .learning-sidebar-card > svg {
-  color: var(--accent, #8b5cf6);
+  color: var(--accent, #007acc);
 }
 
 .learning-sidebar-card strong {
@@ -1669,7 +1667,7 @@ button.file-item {
   margin: 5px 10px;
   padding: 10px;
   border-radius: 6px;
-  background: var(--panel-2, #15151c);
+  background: var(--panel-2, #181818);
   color: var(--text, #f4f4f5);
   font-size: 11px;
   line-height: 1.5;
@@ -1713,7 +1711,7 @@ button.file-item {
   padding: 12px;
   border: 1px solid var(--border, #262630);
   border-radius: 7px;
-  background: var(--panel-2, #15151c);
+  background: var(--panel-2, #181818);
 }
 
 .practice-progress .analysis-stat {
@@ -1750,14 +1748,14 @@ button.file-item {
   padding: 12px;
   border: 1px solid var(--border, #262630);
   border-radius: 7px;
-  background: var(--panel-2, #15151c);
+  background: var(--panel-2, #181818);
 }
 
 .lesson-card .card-heading {
   display: flex;
   align-items: center;
   gap: 7px;
-  color: var(--accent, #a78bfa);
+  color: var(--accent, #75beff);
 }
 
 .lesson-card p {
@@ -1772,7 +1770,7 @@ button.file-item {
   margin-top: 6px;
   padding: 3px 7px;
   border-radius: 4px;
-  background: var(--surface, #1b1b24);
+  background: var(--surface, #252526);
   color: var(--muted, #92929f);
   font-size: 10px;
 }
@@ -1799,7 +1797,7 @@ button.file-item {
 
 .exercise-details summary {
   cursor: pointer;
-  color: var(--accent, #a78bfa);
+  color: var(--accent, #75beff);
 }
 
 .exercise-details details p {
@@ -1817,7 +1815,7 @@ button.file-item {
   padding: 5px 0;
   border: none;
   background: transparent;
-  color: var(--accent, #a78bfa);
+  color: var(--accent, #75beff);
   font: inherit;
   font-size: 11px;
   cursor: pointer;
@@ -1837,7 +1835,7 @@ button.file-item {
   padding: 9px 10px;
   border: 1px solid var(--border, #262630);
   border-radius: 5px;
-  background: var(--surface, #1b1b24);
+  background: var(--surface, #252526);
   color: var(--text, #f4f4f5);
   font: inherit;
   font-size: 11px;
@@ -1846,7 +1844,7 @@ button.file-item {
 }
 
 .complete-button:hover {
-  border-color: var(--accent, #8b5cf6);
+  border-color: var(--accent, #007acc);
 }
 
 .complete-button.completed {
@@ -1863,7 +1861,7 @@ button.file-item {
   padding: 12px;
   border: 1px solid var(--border, #262630);
   border-radius: 7px;
-  background: var(--panel-2, #15151c);
+  background: var(--panel-2, #181818);
   color: var(--text, #f4f4f5);
   cursor: pointer;
   text-align: left;
@@ -1871,7 +1869,7 @@ button.file-item {
 }
 
 .finding-card:hover {
-  border-color: var(--accent, #8b5cf6);
+  border-color: var(--accent, #007acc);
 }
 
 .finding-card p {
@@ -1882,7 +1880,7 @@ button.file-item {
 }
 
 .finding-card small {
-  color: var(--accent, #a78bfa);
+  color: var(--accent, #75beff);
   font-size: 10px;
 }
 
@@ -1927,7 +1925,7 @@ button.file-item {
   margin-top: 12px;
   padding: 11px;
   border-radius: 6px;
-  background: var(--surface, #1b1b24);
+  background: var(--surface, #252526);
   color: var(--text, #d4d4dc);
   font-size: 11px;
   line-height: 1.6;
@@ -1935,7 +1933,7 @@ button.file-item {
 
 .suggestion-box svg {
   flex-shrink: 0;
-  color: var(--accent, #a78bfa);
+  color: var(--accent, #75beff);
 }
 
 /* Backend status */
@@ -2576,4 +2574,334 @@ button.outline-item:hover {
 .plbd-app .save-button:disabled {
   opacity: 0.45;
   cursor: not-allowed;
+}
+
+
+/* =========================================================
+   VS CODE DARK MODERN — WORKBENCH CALIBRATION
+   Centralized geometry and surface rules for the PLBD IDE.
+   ========================================================= */
+
+.plbd-app {
+  color-scheme: dark;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 13px;
+  line-height: 1.4;
+  --vscode-editor: #1e1e1e;
+  --vscode-sidebar: #181818;
+  --vscode-panel: #181818;
+  --vscode-border: #2b2b2b;
+  --vscode-hover: #2a2d2e;
+  --vscode-selection: #04395e;
+}
+
+.plbd-app button,
+.plbd-app input {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+.plbd-app button:focus-visible,
+.plbd-app input:focus-visible {
+  outline: 1px solid #007acc;
+  outline-offset: -1px;
+}
+
+.titlebar {
+  height: 35px;
+  min-height: 35px;
+  padding: 0 10px;
+  gap: 10px;
+  background: #181818;
+  border-bottom: 1px solid #2b2b2b;
+}
+
+.titlebar-brand { gap: 7px; }
+.brand-mark {
+  width: 22px;
+  height: 22px;
+  border-radius: 2px;
+  background: transparent;
+  color: #75beff;
+}
+.brand-name { font-size: 13px; font-weight: 600; letter-spacing: 0; }
+.brand-subtitle { font-size: 12px; color: #a0a0a0; }
+.titlebar-center { font-size: 12px; }
+.titlebar-project {
+  padding: 3px 12px;
+  border: 1px solid #333333;
+  border-radius: 3px;
+  background: #202020;
+  color: #cccccc;
+}
+.titlebar-actions { gap: 8px; }
+.connection-indicator { font-size: 11px; }
+
+.activity-bar {
+  width: 48px;
+  min-width: 48px;
+  background: #181818;
+  border-right: 1px solid #2b2b2b;
+}
+.activity-button { height: 48px; color: #858585; }
+.activity-button.active::before { width: 2px; background: #007acc; }
+
+.sidebar {
+  width: 260px;
+  min-width: 220px;
+  max-width: 340px;
+  background: #181818;
+  border-right: 1px solid #2b2b2b;
+}
+.sidebar-heading {
+  height: 35px;
+  min-height: 35px;
+  padding: 0 18px;
+  color: #bbbbbb;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.6px;
+}
+
+.workspace-explorer { border-bottom-color: #2b2b2b; }
+.workspace-explorer-heading {
+  min-height: 25px;
+  padding: 0 8px 0 18px;
+}
+.workspace-root-select {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+.workspace-toolbar { gap: 1px; }
+.workspace-toolbar button,
+.workspace-row-actions button {
+  width: 22px;
+  height: 22px;
+  border-radius: 2px;
+}
+.workspace-tree { padding: 0 0 6px; }
+.workspace-row {
+  min-height: 22px;
+  padding-right: 6px;
+  font-size: 13px;
+}
+.workspace-main-action {
+  min-height: 22px;
+  gap: 6px;
+}
+.workspace-row:hover,
+.workspace-row.folder-selected { background: #2a2d2e; }
+.workspace-row.active {
+  background: #04395e;
+  color: #ffffff;
+}
+.workspace-footer { display: none; }
+
+.main-area { background: #1e1e1e; }
+.editor-tabs {
+  height: 35px;
+  min-height: 35px;
+  background: #181818;
+  border-bottom: 1px solid #2b2b2b;
+}
+.editor-tab {
+  min-width: 120px;
+  gap: 7px;
+  padding: 0 12px;
+  background: #1e1e1e;
+  border-right: 1px solid #2b2b2b;
+  border-top: 1px solid #007acc;
+  color: #cccccc;
+  font-size: 13px;
+}
+.editor-tab > svg { width: 14px; height: 14px; }
+.tab-close { width: 20px; height: 20px; border-radius: 2px; }
+.editor-tab-actions { gap: 2px; padding: 0 8px; }
+.breadcrumb {
+  height: 22px;
+  min-height: 22px;
+  gap: 6px;
+  padding: 0 16px;
+  color: #a0a0a0;
+  font-size: 12px;
+}
+.editor-container { background: #1e1e1e; }
+
+.bottom-panel {
+  height: 190px;
+  min-height: 125px;
+  background: #181818;
+  border-top: 1px solid #2b2b2b;
+}
+.panel-header {
+  height: 35px;
+  min-height: 35px;
+  padding: 0 12px;
+  border-bottom: 1px solid #2b2b2b;
+}
+.panel-tabs { gap: 18px; }
+.panel-tabs button {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+}
+.panel-tabs button.active::after { height: 1px; background: #007acc; }
+
+.assistant-panel {
+  width: 300px;
+  min-width: 270px;
+  background: #181818;
+  border-left: 1px solid #2b2b2b;
+}
+.assistant-header {
+  height: 35px;
+  min-height: 35px;
+  padding: 0 12px;
+  border-bottom: 1px solid #2b2b2b;
+}
+.assistant-icon,
+.assistant-section-icon {
+  width: auto;
+  height: auto;
+  margin: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #75beff;
+}
+.assistant-title { gap: 8px; }
+.assistant-title strong { font-size: 12px; font-weight: 500; }
+.assistant-title small { font-size: 10px; }
+.assistant-tabs {
+  height: 34px;
+  min-height: 34px;
+  gap: 16px;
+  padding: 0 12px;
+  border-bottom: 1px solid #2b2b2b;
+}
+.assistant-tabs button { font-size: 12px; }
+.assistant-tabs button.active::after { height: 1px; background: #007acc; }
+.assistant-content { padding: 12px; }
+.assistant-intro { margin-bottom: 14px; }
+.assistant-intro h3 { font-size: 13px; font-weight: 600; }
+.assistant-intro p { font-size: 12px; line-height: 1.55; }
+
+.assistant-card,
+.learning-sidebar-card,
+.finding-card,
+.exercise-card,
+.lesson-card,
+.practice-progress {
+  border: 0;
+  border-bottom: 1px solid #2b2b2b;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.assistant-card { margin-bottom: 8px; padding: 10px 0; }
+.learning-sidebar-card { margin: 0 12px 12px; padding: 12px 0; }
+.finding-card {
+  margin: 0;
+  padding: 10px 4px;
+  color: #cccccc;
+  text-align: left;
+}
+.finding-card:hover {
+  border-color: #2b2b2b;
+  background: #2a2d2e;
+}
+.exercise-card { margin-bottom: 8px; padding: 10px 0; }
+.card-heading { font-size: 10px; letter-spacing: 0.4px; }
+.analysis-stat { min-height: 28px; font-size: 12px; }
+.assistant-footer {
+  height: 24px;
+  min-height: 24px;
+  border-top: 1px solid #2b2b2b;
+  font-size: 11px;
+}
+
+.icon-button,
+.subtle-icon,
+.tab-close,
+.workspace-toolbar button,
+.workspace-row-actions button,
+.exercise-heading button {
+  border-radius: 2px;
+}
+.search-input {
+  height: 27px;
+  border-radius: 2px;
+  border-color: #3c3c3c;
+  background: #202020;
+}
+.search-input:focus-within { border-color: #007acc; }
+.file-item,
+button.outline-item { min-height: 22px; font-size: 13px; }
+.file-item.selected { background: #04395e; }
+.file-item:not(.selected):hover,
+button.outline-item:hover { background: #2a2d2e; }
+.history-item,
+.misconception-sidebar {
+  border-radius: 2px;
+}
+.history-item { padding: 7px 8px; }
+.learning-sidebar-card p,
+.assistant-card p,
+.finding-card p,
+.exercise-card > p { font-size: 12px; line-height: 1.55; }
+
+.plbd-app .run-button {
+  min-height: 24px;
+  border-radius: 2px;
+  background: #0e639c;
+  border-color: #0e639c;
+  font-size: 12px;
+}
+.plbd-app .save-button {
+  min-height: 24px;
+  border-radius: 2px;
+  background: #2d2d30;
+  border-color: #454545;
+  font-size: 12px;
+}
+.plbd-app .icon-button,
+.plbd-app .subtle-icon { width: 26px; height: 26px; }
+.plbd-app .statusbar {
+  height: 22px;
+  min-height: 22px;
+  padding: 0 8px;
+  background: #007acc;
+  color: #ffffff;
+  font-size: 11px;
+}
+.status-left,
+.status-right { gap: 10px; }
+.status-panel-toggle { font-size: 11px; }
+
+.settings-popover {
+  top: 40px;
+  border-radius: 3px;
+  border-color: #454545;
+  background: #252526;
+}
+.plbd-app * { scrollbar-color: #424242 transparent; }
+.plbd-app ::-webkit-scrollbar { width: 10px; height: 10px; }
+.plbd-app ::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 0;
+  background: #424242;
+  background-clip: padding-box;
+}
+.plbd-app ::-webkit-scrollbar-thumb:hover { background: #4f4f4f; background-clip: padding-box; }
+
+@media (max-width: 1100px) {
+  .sidebar { width: 230px; min-width: 190px; }
+  .assistant-panel { width: 280px; min-width: 250px; }
+}
+@media (max-width: 850px) {
+  .sidebar { width: 205px; min-width: 175px; }
+}
+@media (max-width: 680px) {
+  .sidebar { width: 190px; min-width: 165px; }
+  .assistant-panel { display: none; }
 }
