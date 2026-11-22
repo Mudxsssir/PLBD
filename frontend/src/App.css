@@ -783,7 +783,7 @@ button.file-item {
   padding: 12px 15px;
 
   color: #b8c6b8;
-  font-family: "JetBrains Mono", monospace;
+  font-family: "Menlo", monospace;
   font-size: 11px;
   line-height: 1.7;
   white-space: pre-wrap;
@@ -1157,7 +1157,7 @@ button.file-item {
 
 .exercise-heading > span {
   color: var(--accent);
-  font-family: "JetBrains Mono", monospace;
+  font-family: "Menlo", monospace;
   font-size: 10px;
 }
 
@@ -2117,7 +2117,7 @@ button.file-item {
   outline: none;
   background: #1e1e1e;
   color: #d4d4d4;
-  font-family: "JetBrains Mono", monospace;
+  font-family: "Menlo", monospace;
   font-size: 11px;
 }
 
