@@ -305,8 +305,6 @@ function App() {
     [recommendations]
   );
 
-  const totalProblems = diagnostics.length + findings.length;
-
   const errorCount = diagnostics.filter(
     (item) =>
       item.severity === "error" ||
@@ -316,6 +314,10 @@ function App() {
   const warningCount = diagnostics.filter(
     (item) => item.severity === "warning"
   ).length;
+
+  const totalProblems = diagnostics.filter(
+    (item) => item.severity !== "note"
+  ).length + findings.length;
 
   const completedCount = exercises.filter((exercise) =>
     completedExercises.includes(exercise.id)
@@ -552,7 +554,11 @@ Recommended exercises: ${normalized.recommendations.reduce(
         severity:
           item.severity === "warning"
             ? monaco.MarkerSeverity.Warning
-            : monaco.MarkerSeverity.Error,
+            : item.severity === "note"
+              ? monaco.MarkerSeverity.Info
+              : item.severity === "error" || item.severity === "fatal error"
+                ? monaco.MarkerSeverity.Error
+                : monaco.MarkerSeverity.Hint,
       })),
 
       ...findings.map((item) => ({
@@ -1186,6 +1192,8 @@ Logic findings: ${entry.findings}`
                     >
                       {item.severity === "warning" ? (
                         <AlertTriangle size={15} />
+                      ) : item.severity === "note" ? (
+                        <BookOpen size={15} />
                       ) : (
                         <AlertCircle size={15} />
                       )}
