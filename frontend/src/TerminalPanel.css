@@ -5,7 +5,7 @@
   height: 100%;
   min-height: 150px;
   overflow: hidden;
-  background: #111318;
+  background: #1e1e1e;
 }
 
 .plbd-terminal-toolbar {
@@ -15,15 +15,15 @@
   align-items: center;
   justify-content: space-between;
   padding: 0 12px;
-  border-bottom: 1px solid #292d35;
-  color: #b8bec9;
+  border-bottom: 1px solid #2b2b2b;
+  color: #cccccc;
   font-size: 10px;
   letter-spacing: 0.7px;
   font-weight: 600;
 }
 
 .plbd-terminal-session {
-  color: #858d9b;
+  color: #858585;
   font-size: 9px;
 }
 
@@ -42,3 +42,10 @@
 .plbd-terminal-screen .xterm-viewport {
   overflow-y: auto !important;
 }
+
+
+/* Match the VS Code integrated terminal surface. */
+.plbd-terminal-shell { background: #1e1e1e; }
+.plbd-terminal-toolbar { background: #181818; border-bottom-color: #2b2b2b; font-size: 11px; letter-spacing: .2px; }
+.plbd-terminal-screen { padding: 6px 12px; }
+.plbd-terminal-screen .xterm { font-family: Menlo, Monaco, "Courier New", monospace; }
