@@ -297,6 +297,7 @@ def analyze(request: CodeRequest):
                     "-Wall",
                     "-Wextra",
                     "-Wpedantic",
+                    "-Werror=format",
                     "-fsyntax-only",
                     "-fno-color-diagnostics",
                     source
