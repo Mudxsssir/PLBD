@@ -1,10 +1,8 @@
 
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap");
-
 @import "tailwindcss";
 
 :root {
-  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -34,13 +32,13 @@ button {
 }
 
 ::selection {
-  background: #8b5cf655;
+  background: #264f78;
   color: inherit;
 }
 
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
@@ -48,10 +46,13 @@ button {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #71717a55;
-  border-radius: 10px;
+  background: #42424255;
+  border-radius: 0;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #71717a99;
+  background: #4f4f4f;
 }
+
+
+html, body, #root { background: #1e1e1e; }
