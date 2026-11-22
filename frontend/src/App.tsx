@@ -315,9 +315,7 @@ function App() {
     (item) => item.severity === "warning"
   ).length;
 
-  const totalProblems = diagnostics.filter(
-    (item) => item.severity !== "note"
-  ).length + findings.length;
+  const totalProblems = diagnostics.length + findings.length;
 
   const completedCount = exercises.filter((exercise) =>
     completedExercises.includes(exercise.id)
